@@ -5098,13 +5098,13 @@ popud8.addEventListener('close', () => {
 
     
 <script>
-const apiKey = tmdbApiKey;
+
 
 //  Obtener detalles principales de la película
 async function fetchMovieDetails(tmdbId) {
     try {
         // Obtener detalles de la película
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es`);
+        const response = await fetch(`https://cinedey.free.nf/tmdb.php?type=details&id=${tmdbId}`);
         const movie = await response.json();
 
         // Mostrar géneros
@@ -5157,7 +5157,7 @@ async function fetchMovieDetails(tmdbId) {
 
 //  Obtener tráiler
 async function fetchTrailer(tmdbId) {
-    const trailerResponse = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}&language=es`);
+    const trailerResponse = await fetch(`https://cinedey.free.nf/tmdb.php?type=videos&id=${tmdbId}`);
     const trailerData = await trailerResponse.json();
     const trailer = trailerData.results.find(video => video.type === 'Trailer');
 
@@ -5213,7 +5213,7 @@ async function fetchTrailer(tmdbId) {
 //  Obtener logo de la plataforma de streaming
 async function fetchStreamingLogo(tmdbId) {
     try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${apiKey}`);
+        const response = await fetch(`https://cinedey.free.nf/tmdb.php?type=providers&id=${tmdbId}`);
         const data = await response.json();
 
         const streamingContainer = document.getElementById('streaming-logo');
@@ -5249,7 +5249,6 @@ function truncateSynopsis(synopsis) {
     return { truncated, full: synopsis };
 }
 </script>
-  
     
     
     
