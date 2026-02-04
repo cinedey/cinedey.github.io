@@ -5099,8 +5099,18 @@ popud8.addEventListener('close', () => {
 <script src="https://cinedey.free.nf/tmdb-key.php"></script>
     
     
+<script src="https://cinedey.free.nf/tmdb-key.php"></script>
+
 <script>
-const apiKey = tmdbApiKey; // ← viene desde InfinityFree
+function waitForKey(callback) {
+    if (window.tmdbApiKey) {
+        callback(window.tmdbApiKey);
+    } else {
+        setTimeout(() => waitForKey(callback), 50);
+    }
+}
+
+waitForKey(function(apiKey) {
 
 // 🎬 Obtener detalles principales de la película
 async function fetchMovieDetails(tmdbId) {
@@ -5142,11 +5152,11 @@ async function fetchMovieDetails(tmdbId) {
         await fetchTrailer(tmdbId);
 
     } catch (error) {
-        console.error('Error al obtener detalles:', error);
+        alert("Error cargando datos de TMDb");
     }
 }
 
-// 🎞️ Obtener tráiler
+// 🎞️ Tráiler
 async function fetchTrailer(tmdbId) {
     const trailerResponse = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}&language=es-MX`);
     const trailerData = await trailerResponse.json();
@@ -5187,43 +5197,36 @@ async function fetchTrailer(tmdbId) {
     popupOverlay.addEventListener('click', () => closePopupButton52.click());
 }
 
-// 📺 Plataformas de streaming
+// 📺 Plataformas
 async function fetchStreamingLogo(tmdbId) {
-    try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${apiKey}`);
-        const data = await response.json();
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${apiKey}`);
+    const data = await response.json();
 
-        const streamingContainer = document.getElementById('streaming-logo');
-        streamingContainer.innerHTML = '';
+    const streamingContainer = document.getElementById('streaming-logo');
+    streamingContainer.innerHTML = '';
 
-        if (!data.results?.MX?.flatrate?.length) return;
+    if (!data.results?.MX?.flatrate?.length) return;
 
-        const provider = data.results.MX.flatrate[0];
+    const provider = data.results.MX.flatrate[0];
 
-        if (provider.logo_path) {
-            const logoImg = document.createElement('img');
-            logoImg.src = `https://image.tmdb.org/t/p/w200${provider.logo_path}`;
-            logoImg.alt = provider.provider_name;
-            logoImg.style.maxHeight = "50px";
-            logoImg.style.margin = "5px";
-            streamingContainer.appendChild(logoImg);
-        }
-    } catch (error) {
-        console.error('Error al obtener plataforma:', error);
+    if (provider.logo_path) {
+        const logoImg = document.createElement('img');
+        logoImg.src = `https://image.tmdb.org/t/p/w200${provider.logo_path}`;
+        logoImg.style.maxHeight = "50px";
+        logoImg.style.margin = "5px";
+        streamingContainer.appendChild(logoImg);
     }
 }
 
-// ✂️ Función para truncar sinopsis
+// ✂️ Sinopsis
 function truncateSynopsis(synopsis) {
     const words = synopsis.split(' ');
     if (words.length <= 50) return { truncated: synopsis, full: synopsis };
-    return {
-        truncated: words.slice(0, 30).join(' ') + '...',
-        full: synopsis
-    };
+    return { truncated: words.slice(0, 30).join(' ') + '...', full: synopsis };
 }
+
+}); // 🔥 Fin waitForKey
 </script>    
-    
     
 <script>
 // ==========================
