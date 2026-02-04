@@ -5099,7 +5099,6 @@ popud8.addEventListener('close', () => {
 <script src="https://cinedey.free.nf/tmdb-key.php"></script>
     
     
-<script src="https://cinedey.free.nf/tmdb-key.php"></script>
 
 <script>
 function waitForKey(callback) {
@@ -5115,7 +5114,7 @@ waitForKey(function(apiKey) {
 // 🎬 Obtener detalles principales de la película
 async function fetchMovieDetails(tmdbId) {
     try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es-MX`);
+        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es`);
         const movie = await response.json();
 
         document.getElementById('categories').textContent =
@@ -5158,7 +5157,7 @@ async function fetchMovieDetails(tmdbId) {
 
 // 🎞️ Tráiler
 async function fetchTrailer(tmdbId) {
-    const trailerResponse = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}&language=es-MX`);
+    const trailerResponse = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}&language=es`);
     const trailerData = await trailerResponse.json();
     const trailer = trailerData.results.find(video => video.type === 'Trailer');
 
