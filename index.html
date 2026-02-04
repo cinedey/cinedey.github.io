@@ -5096,39 +5096,26 @@ popud8.addEventListener('close', () => {
 </script>
 
 
-<script src="https://cinedey.free.nf/tmdb-key.php"></script>
-    
-    
 
 <script>
-function waitForKey(callback) {
-    if (window.tmdbApiKey) {
-        callback(window.tmdbApiKey);
-    } else {
-        setTimeout(() => waitForKey(callback), 50);
-    }
-}
-
-waitForKey(function(apiKey) {
-
 // 🎬 Obtener detalles principales de la película
 async function fetchMovieDetails(tmdbId) {
     try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es`);
+        const response = await fetch(`https://cinedey.free.nf/tmdb.php?endpoint=movie/${tmdbId}`);
         const movie = await response.json();
 
         document.getElementById('categories').textContent =
-            movie.genres.slice(0, 3).map(g => g.name).join(', ');
+            movie.genres?.slice(0, 3).map(g => g.name).join(', ') || '';
 
-        const releaseYear = movie.release_date.split('-')[0];
+        const releaseYear = movie.release_date?.split('-')[0] || '';
         document.getElementById('movie-year').textContent = releaseYear;
 
-        const runtime = movie.runtime;
+        const runtime = movie.runtime || 0;
         const hours = Math.floor(runtime / 60);
         const minutes = runtime % 60;
         document.getElementById('movie-duration').textContent = `${hours}h ${minutes}m`;
 
-        const { truncated, full } = truncateSynopsis(movie.overview);
+        const { truncated, full } = truncateSynopsis(movie.overview || '');
         const synopsisElement = document.getElementById('synopsis');
         synopsisElement.textContent = truncated;
 
@@ -5138,8 +5125,8 @@ async function fetchMovieDetails(tmdbId) {
             synopsisElement.appendChild(toggleIcon);
 
             toggleIcon.addEventListener('click', () => {
-                synopsisElement.textContent =
-                    toggleIcon.classList.contains('fa-chevron-down') ? full : truncated;
+                const showingFull = toggleIcon.classList.contains('fa-chevron-up');
+                synopsisElement.textContent = showingFull ? truncated : full;
 
                 toggleIcon.classList.toggle('fa-chevron-down');
                 toggleIcon.classList.toggle('fa-chevron-up');
@@ -5151,81 +5138,96 @@ async function fetchMovieDetails(tmdbId) {
         await fetchTrailer(tmdbId);
 
     } catch (error) {
-        alert("Error cargando datos de TMDb");
+        alert("Error cargando datos de la película");
     }
 }
 
-// 🎞️ Tráiler
+// 🎞️ Obtener tráiler
 async function fetchTrailer(tmdbId) {
-    const trailerResponse = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}&language=es`);
-    const trailerData = await trailerResponse.json();
-    const trailer = trailerData.results.find(video => video.type === 'Trailer');
+    try {
+        const trailerResponse = await fetch(`https://cinedey.free.nf/tmdb.php?endpoint=movie/${tmdbId}/videos`);
+        const trailerData = await trailerResponse.json();
+        const trailer = trailerData.results?.find(video => video.type === 'Trailer');
 
-    const buttonContainer52 = document.getElementById('button-container52');
-    const trailerIframe = document.getElementById('trailer-iframe');
-    const popupContainer52 = document.getElementById('popup-container52');
-    const popupOverlay = document.getElementById('popup-overlay');
-    const closePopupButton52 = document.getElementById('close-popup52');
+        const buttonContainer52 = document.getElementById('button-container52');
+        const trailerIframe = document.getElementById('trailer-iframe');
+        const popupContainer52 = document.getElementById('popup-container52');
+        const popupOverlay = document.getElementById('popup-overlay');
+        const closePopupButton52 = document.getElementById('close-popup52');
 
-    buttonContainer52.innerHTML = '';
+        buttonContainer52.innerHTML = '';
 
-    if (trailer) {
-        const trailerButton = document.createElement('button');
-        trailerButton.className = 'button trailer-button';
-        trailerButton.innerHTML = '<i class="fas fa-film"></i>';
+        if (trailer) {
+            const trailerButton = document.createElement('button');
+            trailerButton.className = 'button trailer-button';
+            trailerButton.innerHTML = '<i class="fas fa-film"></i>';
 
-        trailerButton.addEventListener('click', () => {
-            const isActive = trailerButton.classList.contains('active');
+            trailerButton.addEventListener('click', () => {
+                const isActive = trailerButton.classList.contains('active');
 
-            trailerIframe.src = isActive ? '' : `https://www.youtube.com/embed/${trailer.key}`;
-            popupContainer52.style.display = isActive ? 'none' : 'block';
-            popupOverlay.style.display = isActive ? 'none' : 'block';
-            trailerButton.classList.toggle('active');
-        });
+                trailerIframe.src = isActive ? '' : `https://www.youtube.com/embed/${trailer.key}`;
+                popupContainer52.style.display = isActive ? 'none' : 'block';
+                popupOverlay.style.display = isActive ? 'none' : 'block';
+                trailerButton.classList.toggle('active');
+            });
 
-        buttonContainer52.appendChild(trailerButton);
+            buttonContainer52.appendChild(trailerButton);
+        }
+
+        closePopupButton52.onclick = () => {
+            trailerIframe.src = '';
+            popupContainer52.style.display = 'none';
+            popupOverlay.style.display = 'none';
+            document.querySelector('.trailer-button.active')?.classList.remove('active');
+        };
+
+        popupOverlay.onclick = closePopupButton52.onclick;
+
+    } catch (error) {
+        console.log("No se pudo cargar el tráiler");
     }
-
-    closePopupButton52.addEventListener('click', () => {
-        trailerIframe.src = '';
-        popupContainer52.style.display = 'none';
-        popupOverlay.style.display = 'none';
-        document.querySelector('.trailer-button.active')?.classList.remove('active');
-    });
-
-    popupOverlay.addEventListener('click', () => closePopupButton52.click());
 }
 
-// 📺 Plataformas
+// 📺 Obtener plataformas de streaming
 async function fetchStreamingLogo(tmdbId) {
-    const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${apiKey}`);
-    const data = await response.json();
+    try {
+        const response = await fetch(`https://cinedey.free.nf/tmdb.php?endpoint=movie/${tmdbId}/watch/providers`);
+        const data = await response.json();
 
-    const streamingContainer = document.getElementById('streaming-logo');
-    streamingContainer.innerHTML = '';
+        const streamingContainer = document.getElementById('streaming-logo');
+        streamingContainer.innerHTML = '';
 
-    if (!data.results?.MX?.flatrate?.length) return;
+        if (!data.results?.MX?.flatrate?.length) return;
 
-    const provider = data.results.MX.flatrate[0];
+        const provider = data.results.MX.flatrate[0];
 
-    if (provider.logo_path) {
-        const logoImg = document.createElement('img');
-        logoImg.src = `https://image.tmdb.org/t/p/w200${provider.logo_path}`;
-        logoImg.style.maxHeight = "50px";
-        logoImg.style.margin = "5px";
-        streamingContainer.appendChild(logoImg);
+        if (provider.logo_path) {
+            const logoImg = document.createElement('img');
+            logoImg.src = `https://image.tmdb.org/t/p/w200${provider.logo_path}`;
+            logoImg.alt = provider.provider_name;
+            logoImg.style.maxHeight = "50px";
+            logoImg.style.margin = "5px";
+            streamingContainer.appendChild(logoImg);
+        }
+    } catch (error) {
+        console.log("No se pudo cargar proveedor");
     }
 }
 
-// ✂️ Sinopsis
+// ✂️ Función para truncar sinopsis
 function truncateSynopsis(synopsis) {
     const words = synopsis.split(' ');
     if (words.length <= 50) return { truncated: synopsis, full: synopsis };
-    return { truncated: words.slice(0, 30).join(' ') + '...', full: synopsis };
+    return {
+        truncated: words.slice(0, 30).join(' ') + '...',
+        full: synopsis
+    };
 }
+</script>
 
-}); // 🔥 Fin waitForKey
-</script>    
+
+
+
     
 <script>
 // ==========================
