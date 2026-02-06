@@ -3165,17 +3165,7 @@ left:50%;
 </head>
   
 <body>
-<script>
-alert("ANTES");
 
-fetch("https://cinedey.free.nf/tmdb.php?id=550")
-  .then(r => r.json())
-  .then(data => {
-    alert("DESPUÉS: " + data.title);
-    console.log(data);
-  })
-  .catch(err => alert("ERROR"));
-</script>  
 
  <html lang="en" translate="no"> 
   
