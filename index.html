@@ -3166,22 +3166,16 @@ left:50%;
   
 <body>
 <script>
-alert("ANTES DEL PHP");
+alert("ANTES");
 
-window.prueba = function(data) {
-  alert("DESPUÉS DEL PHP\n\nTítulo: " + data.title);
-  console.log("Datos TMDB:", data);
-};
-
-// Cargar el PHP dinámicamente (Blogger-friendly)
-(function () {
-  var s = document.createElement("script");
-  s.src = "https://cinedey.free.nf/tmdb.php?id=550&callback=prueba&i=1";
-  s.async = true;
-  document.body.appendChild(s);
-})();
-</script>
-  
+fetch("https://cinedey.free.nf/tmdb.php?id=550")
+  .then(r => r.json())
+  .then(data => {
+    alert("DESPUÉS: " + data.title);
+    console.log(data);
+  })
+  .catch(err => alert("ERROR"));
+</script>  
 
  <html lang="en" translate="no"> 
   
